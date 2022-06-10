@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import os
 from xml.etree import ElementTree
 import pythoncom
@@ -33,15 +34,32 @@ iPart = iDocument3D.GetPart(kompas6_constants_3d.pTop_Part)
 VariableCollection = iPart.VariableCollection() #Получение колекции перменных
 VariableCollection.refresh() #обновление коллекции перменных
 
+def interactive(i):
+    print(i)
+    
+def auto(a):
+    print(a)
+
+def h(h):
+    for i in dicthelp:
+        print(dicthelp[i])
+    quit()
+
+
 def enter_filename():
     name=input('Введите название файла, который вы бы хотели изменить\n')
-    return ElementTree.parse("X:\\education\\Diploma\\Program\\source_xml\\"+name+".xml")
+    return name
 
-def elem_is(): 
+
+
+def elem_is(name): 
     print('В выбранной вами фигуре вам доступны следующие элементы для изменения:')
+    tree = ElementTree.parse("X:\\education\\Diploma\\Program\\source_xml\\"+name+".xml")
+    root = tree.getroot()
     for element in root.iter('variable'):
             for child in element.iter('name'):
                 print(' ', child.text)
+    return tree
 
 def show_elem(chosen_elem): #Вызов характеристик переменной на экран
     for element in root.iter('variable'):
@@ -93,20 +111,55 @@ def change_variable():
     iPart.RebuildModel() 
 
 
-tree = enter_filename()
-root = tree.getroot()
-elem = ''
-parent = ''
+dicthelp = {
+    '-h':'''Команда -h выводит информацию о параметрах для запуска программы''',
+    '-i':'''Команда -i запускает интерактивный режим программы
+            пользователь вводит данные в командной строке''',
+    '-a':'''Команда -а запускает автоматический режим программы
+            c этой командой необхожимо передать следующие значения:''',
+    'xml':'Команда xml="[Название файла]"',
+    'm3d':'Команда m3d="[Название файла]',
+    'type':'''Команда type="[rnd[название переменной]/ for:[название переменной]:min:max,step]"
+              rnd - Рандомно изменяет указаную переменную,
+              for - Изменяет указанную переменную от минимального значения до максимального
+              с определенным шагом, и создает сразу несколько копий модели '''
+}
 
-
-flag = 'Да'
-while flag == 'Да':
-    elem_is()
-    elem = select_elem()
-    parent = select_parent()
-    change_variable()
-    flag = input('\n Продолжить?(Да/Нет) ')
-        
+if len(sys.argv)>1:
+    if sys.argv[1] == '-i':
+        interactive(sys.argv[1])
+        name = enter_filename()
+        tree = elem_is(name)
+        root = tree.getroot()
+        elem = ''
+        parent = ''
+    
+        flag = 'Да'
+        while flag == 'Да':
+            elem = select_elem()
+            parent = select_parent()
+            change_variable(parent)
+            flag = input('\n Продолжить?(Да/Нет) ')
+    elif sys.argv[1] == '-h':
+        h(sys.argv[1])
+    elif sys.argv[1] == '-a':
+        auto(sys.argv[1])
+    else:
+        print('Заданы неверные параметры')
+        quit()
+else:
+    name = enter_filename()
+    tree = elem_is(name)
+    root = tree.getroot()
+    elem = ''
+    parent = ''
+    
+    flag = 'Да'
+    while flag == 'Да':
+        elem = select_elem()
+        parent = select_parent()
+        change_variable(parent)
+        flag = input('\n Продолжить?(Да/Нет) ')
     
 
 
