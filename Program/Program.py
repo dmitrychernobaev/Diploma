@@ -11,7 +11,7 @@ import MiscellaneousHelpers as MH
 import time
 import random
 
-##Открываем компас
+##Открывает компас
 def start_kompas():
     Dispatch("KOMPAS.Application.7")
     #  Подключим константы API Компас
@@ -31,6 +31,7 @@ def start_kompas():
     Documents = application.Documents
     return kompas6_constants_3d, kompas_object, kompas_api7_module, Documents, kompas6_constants, kompas6_api5_module, kompas_api7_module
 
+##Открывает нужный 3д документ и читает коллекцию переменных
 def open(name_m3d, kompas6_constants_3d, kompas_object, kompas_api7_module, Documents):
     #  Открываем документ
     kompas_document = Documents.Open("X://education//Diploma//Program//source//"+name_m3d+".m3d", True, False)
@@ -45,6 +46,7 @@ def open(name_m3d, kompas6_constants_3d, kompas_object, kompas_api7_module, Docu
     VariableCollection.refresh() #обновление коллекции перменных
     return kompas_document, VariableCollection, iPart, kompas_document_3d
 
+##для интерактивного режима спрашивает названия xml и m3d файлов
 def i_enter_filename():
     flag1 = True
     flag2 = True
@@ -64,6 +66,7 @@ def i_enter_filename():
     
     return name_m3d, name_xml
 
+##для автоматического проверяет наличие файлов в папке
 def a_enter_filename(m3d, xml):
     flag1 = True
     flag2 = True
@@ -88,6 +91,7 @@ def a_enter_filename(m3d, xml):
     
     return name_m3d, name_xml
 
+##для интерактивного выводит доступные для изменения переменные
 def elem_is(name): 
     print('В выбранной вами фигуре вам доступны следующие элементы для изменения:')
     tree = ElementTree.parse("X:\\education\\Diploma\\Program\\source_xml\\"+name+".xml")
@@ -97,9 +101,11 @@ def elem_is(name):
                 print(' ', child.text)
     return tree
 
+##Создает древо хмл
 def a_tree(name):
     tree = ElementTree.parse("X:\\education\\Diploma\\Program\\source_xml\\"+name+".xml")
     return tree 
+
 
 def show_elem(chosen_elem): #Вызов характеристик переменной на экран
     for element in root.iter('variable'):
@@ -124,6 +130,19 @@ def name_elem(): #Ввод пользователем имени перемен�
         if flag == False:
             print('\nВы ввели неправильную переменную')
 
+def check_elem(chosen_elem): #Проверка вользователем переменной
+    flag = input('Это нужная вам переменная?(Да/Нет)\n')
+    if flag == 'Нет':
+        chosen_elem = select_elem()
+        show_elem(elem)
+    return chosen_elem
+
+def select_elem(): #Полный выбор переменной их хмл
+    elem = name_elem()
+    show_elem(elem)
+    elem = check_elem(elem)
+    return elem
+
 def a_name_elem(func, root): #Ввод пользователем имени переменной
     input_elem = func[2]
     flag = False
@@ -139,27 +158,13 @@ def a_name_elem(func, root): #Ввод пользователем имени п�
             time.sleep(5)
             quit()
 
-
-
-def check_elem(chosen_elem): #Проверка вользователем переменной
-    flag = input('Это нужная вам переменная?(Да/Нет)\n')
-    if flag == 'Нет':
-        chosen_elem = select_elem()
-        show_elem(elem)
-    return chosen_elem
-
-def select_elem(): #Полный выбор переменной
-    elem = name_elem()
-    show_elem(elem)
-    elem = check_elem(elem)
-    return elem
-
 def select_parent(elem, root): #Получение всех данных о выбранной перменной
     for element in root.iter('variable'): 
         for child in element.iter('name'):
             if elem == child.text:
                 return element
 
+##интерактивное изменение значения переменной
 def change_variable(parent, kompas_document, VariableCollection, iPart):
     Variable = VariableCollection.GetByName(parent[1].text, True, True)
     print('\nСтарое значение переменной: ', Variable.value)
@@ -178,6 +183,7 @@ def change_variable(parent, kompas_document, VariableCollection, iPart):
     iPart.RebuildModel() 
     kompas_document.Save()
 
+##автоматического изменение значения переменной
 def a_change_variable_rnd(parent, kompas_document, VariableCollection, iPart):
     Variable = VariableCollection.GetByName(parent[1].text, True, True)
     print('\nСтарое значение переменной: ', Variable.value)
@@ -190,6 +196,7 @@ def a_change_variable_rnd(parent, kompas_document, VariableCollection, iPart):
     kompas_document.Save()
     return new_value
 
+##автоматического изменения значения переменной в цикле
 def a_change_variable_for(parent, kompas_document, VariableCollection, iPart, func,
                           Documents, kompas_document_3d, kompas6_constants, 
                           kompas6_api5_module, kompas_api7_module, kompas_object, name_m3d):
@@ -206,7 +213,7 @@ def a_change_variable_for(parent, kompas_document, VariableCollection, iPart, fu
                      func[2], Variable.value)
     kompas_document_3d.Close(True)
 
-
+##Создание ассоциативной модели для интерактивного
 def create_cdw(Documents, kompas_3d_document, kompas6_constants, 
                 kompas6_api5_module, kompas_api7_module, kompas_object, name_m3d):
     #  Создаем новый документ
@@ -247,6 +254,7 @@ def create_cdw(Documents, kompas_3d_document, kompas6_constants,
     kompas_document.Close(True)
     kompas_3d_document.Close(True)
 
+##создание ассоцитивной модели для автоматического режима
 def a_create_cdw(Documents, kompas_3d_document, kompas6_constants, 
                 kompas6_api5_module, kompas_api7_module, kompas_object, name_m3d,
                 name_value, new_value):
@@ -286,15 +294,13 @@ def a_create_cdw(Documents, kompas_3d_document, kompas6_constants,
     new_name = 'X:\\education\\Diploma\\Program\\New_file\\'+name_m3d+'_'+name_value+str(new_value)+'.cdw'
     kompas_document.SaveAs(new_name)
     kompas_document.Close(True)  
-    
+
+##автоматический режим   
 def auto(a):
     xml = sys.argv[2].split('=')
     m3d = sys.argv[3].split('=')
     func = sys.argv[4].split(':')
 
-    print(xml)
-    print(m3d)
-    print(func)
     if (xml[0] != 'xml') or (m3d[0] != 'm3d') or (func[0] != 'type'):
         print('Параметры заданы не верно')
         print('Пример: Program.py -a xml=123 m3d=123 type:rnd:Радиус')
@@ -314,7 +320,6 @@ def auto(a):
         a_create_cdw(Documents, kompas_document_3d, kompas6_constants, 
                 kompas6_api5_module, kompas_api7_module, kompas_object, name_m3d,
                 func[2], new_value)
-        kompas_object.Quit()
         quit()
 
     elif func[1] == 'for':
@@ -325,7 +330,6 @@ def auto(a):
         a_change_variable_for(parent, kompas_document, VariableCollection, iPart, func,
                              Documents, kompas_document_3d, kompas6_constants, 
                              kompas6_api5_module, kompas_api7_module, kompas_object, name_m3d)
-        kompas_object.Quit()
         quit()
     else:  
         print('Введенная вами команда не поддерживается')
@@ -334,12 +338,13 @@ def auto(a):
 
     quit()
 
-
+##режим помощь
 def h(h):
     for i in dicthelp:
         print(dicthelp[i])
     quit()
 
+##словарь для помощи
 dicthelp = {
     '-h':'''Команда -h выводит информацию о параметрах для запуска программы''',
     '-i':'''Команда -i запускает интерактивный режим программы
@@ -359,7 +364,7 @@ elem = ''
 parent = ''
 
 if len(sys.argv)>1:
-    if sys.argv[1] == '-i':
+    if sys.argv[1] == '-i':##интерактивное изменение
         kompas6_constants_3d, kompas_object, kompas_api7_module, Documents, kompas6_constants, kompas6_api5_module, kompas_api7_module = start_kompas()
         name_m3d, name_xml = i_enter_filename()
         kompas_document, VariableCollection, iPart, kompas_document_3d = open(name_m3d, kompas6_constants_3d, kompas_object, kompas_api7_module, Documents)
@@ -383,7 +388,7 @@ if len(sys.argv)>1:
     else:
         print('Заданы неверные параметры')
         quit()
-else:
+else: ##изменение при запуске не через кмд
     kompas6_constants_3d, kompas_object, kompas_api7_module, Documents, kompas6_constants, kompas6_api5_module, kompas_api7_module = start_kompas()
     name_m3d, name_xml = i_enter_filename()
     kompas_document, VariableCollection, iPart, kompas_document_3d = open(name_m3d, kompas6_constants_3d, kompas_object, kompas_api7_module, Documents)
@@ -394,7 +399,7 @@ else:
         elem = select_elem()
         parent = select_parent(elem, root)
         change_variable(parent, kompas_document, VariableCollection, iPart)
-        flag = input('\nПродолжить?(Да/Нет) ')
+        flag = input('\nПродолжить изменение переменных?(Да/Нет) ')
     else: 
         create_cdw(Documents, kompas_document_3d, kompas6_constants, 
                 kompas6_api5_module, kompas_api7_module, kompas_object, name_m3d)
