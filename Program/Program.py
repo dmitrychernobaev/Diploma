@@ -11,6 +11,7 @@ import MiscellaneousHelpers as MH
 import time
 import random
 
+##Открываем компас
 def start_kompas():
     Dispatch("KOMPAS.Application.7")
     #  Подключим константы API Компас
