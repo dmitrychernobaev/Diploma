@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from ast import Break
-from calendar import c
 import sys
 import os
 from xml.etree import ElementTree
