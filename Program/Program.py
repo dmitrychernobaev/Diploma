@@ -9,6 +9,8 @@ import MiscellaneousHelpers as MH
 import time
 import random
 
+
+
 ##Открывает компас
 def start_kompas():
     Dispatch("KOMPAS.Application.7")
